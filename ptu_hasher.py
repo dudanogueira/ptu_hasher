@@ -1,7 +1,7 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#!/usr/bin/env python
 import hashlib
-import os, sys
+import os, sys, codecs
 
 pasta_alvo = None
 
@@ -27,15 +27,16 @@ arquivos = [f for f in os.listdir(pasta_alvo) if not f.startswith('.') and not f
 
 for arquivo in arquivos:
     caminho = os.path.join(pasta_alvo, arquivo)
-    with open(caminho) as f:
+    with codecs.open(caminho, encoding='utf-8') as f:
         print ('----------------%s---------------' % caminho)
         # remove quebras de linha
         linhas_originais = f.readlines()
         linhas = [l.replace('\r', '').replace('\n', '') for l in linhas_originais]
         # hash encontrado no arquivo
         md5_arquivo = linhas[-1][-32:]
-        # conteudo sem ultima linha
-        md5_calculado = hashlib.md5("".join(linhas[:-1]).encode('utf-8')).hexdigest()
+        # conteudo sem ultima linhas
+        conteudo = u"".join(linhas[:-1]).encode('utf-8')
+        md5_calculado = hashlib.md5(conteudo).hexdigest()
         if md5_calculado == md5_arquivo:
             print("[%s] HASH OK!" % arquivo)
         else:
