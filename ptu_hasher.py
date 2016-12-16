@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
 import hashlib
-import os, sys, codecs
+import os, sys, codecs, shutil
 
 pasta_alvo = None
 
@@ -9,24 +9,31 @@ print("Checando plataforma...")
 if hashlib.md5(str("Unimed").encode('utf-8')).hexdigest() == str('2dad3b15a3abcb29f82e1d5547e8cd1a'):
     print("OK! Biblioteca Hash Funciona!")
 
+# pasta origem
 try:
-    pasta_alvo = sys.argv[1]
+    pasta_origem = sys.argv[1]
 except:
-    pasta_alvo = os.path.join(os.getcwd(), 'PTUs')
+    pasta_origem = os.path.join(os.getcwd(), 'PTUs')
+# pasta destino
+try:
+    pasta_destino = sys.argv[2]
+except:
+    pasta_destino = os.path.join(os.getcwd(), 'PTUs_out')
 
-print("Checando Pasta....")
 
-if os.path.isdir(pasta_alvo):
-    print("OK! Pasta alvo definida e válida: %s" % pasta_alvo)
-else:
-    print("ERRO! Pasta alvo inválida: %s" % pasta_alvo)
+print("Checando Pastas....")
+for pasta in [(pasta_origem, 'origem'), (pasta_destino, 'destino')]:
+    if os.path.isdir(pasta[0]):
+        print("OK! Pasta %s válida: %s" % (pasta[0], pasta[1]))
+    else:
+        print("ERRO! Pasta %s inválida: %s" % (pasta[0], pasta[1]))
 
 # exclui arquivos ocultos e pythonicos
-arquivos = [f for f in os.listdir(pasta_alvo) if not f.startswith('.') and not f.endswith('.py')]
+arquivos = [f for f in os.listdir(pasta_origem) if not f.startswith('.') and not f.endswith('.py')]
 
 
 for arquivo in arquivos:
-    caminho = os.path.join(pasta_alvo, arquivo)
+    caminho = os.path.join(pasta_origem, arquivo)
     with codecs.open(caminho, encoding='utf-8') as f:
         print ('----------------%s---------------' % caminho)
         # remove quebras de linha
@@ -45,4 +52,5 @@ for arquivo in arquivos:
             print("CONSERTANDO...")
             ultima_linha = "%s%s" % (linhas[-1][:11], md5_calculado)
             linhas_originais[-1] = ultima_linha
-            open(os.path.join(pasta_alvo, arquivo), 'w').writelines(linhas_originais)
+            open(os.path.join(pasta_origem, arquivo), 'w').writelines(linhas_originais)
+        shutil.move(os.path.join(pasta_origem, arquivo), os.path.join(pasta_destino, arquivo))
